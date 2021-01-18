@@ -34,20 +34,20 @@
     </v-app-bar>
 
     <v-main>
-      <HelloWorld />
+      <PixiTree />
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import PixiTree from "@/components/PixiTree.vue";
 
 export default Vue.extend({
   name: "App",
 
   components: {
-    HelloWorld
+    PixiTree
   },
 
   data: () => ({
