@@ -1,53 +1,126 @@
-import { Node } from "@/graphics/Node";
+import { EmptyNode, Node } from "@/graphics/Node";
 import { Container } from "pixi.js";
-import { SPACE_HORIZONTAL, SPACE_VERTICAL } from "@/graphics/constants";
-import { makeLine } from "@/graphics/Line";
+import {
+  edge,
+  makeRectangle,
+  SPACE_HORIZONTAL,
+  SPACE_VERTICAL,
+} from "@/graphics/helpers";
 
-export class BinaryTreeNode extends Node {
-  private _leftChild: Node | undefined;
-  private _rightChild: Node | undefined;
+type OptBinaryTreeNode = BinaryTreeNode | EmptyNode | null;
 
-  constructor(label: string) {
-    super(label);
+const USE_EMPTY_NODES = true;
+const SHOW_BOUNDING_BOXES = true;
+
+export class BinaryTreeNode {
+  private leftChild: OptBinaryTreeNode;
+  private rightChild: OptBinaryTreeNode;
+  private readonly parent: Node;
+
+  constructor(
+    label: string,
+    left: OptBinaryTreeNode = null,
+    right: OptBinaryTreeNode = null
+  ) {
+    this.parent = new Node(label);
+    this.leftChild = left || (USE_EMPTY_NODES ? new EmptyNode() : null);
+    this.rightChild = right || (USE_EMPTY_NODES ? new EmptyNode() : null);
   }
 
-  set leftChild(child: Node) {
-    this._leftChild = child;
+  toString(): string {
+    return `${this.constructor.name}("${this.parent}")`;
   }
 
-  set rightChild(child: Node) {
-    this._rightChild = child;
+  setLeftChild(child: BinaryTreeNode): void {
+    this.leftChild = child;
+  }
+
+  setRightChild(child: BinaryTreeNode): void {
+    this.rightChild = child;
   }
 
   layOut(): Container {
-    const container = new Container();
+    console.log(`LAY OUT ${this}`, this);
 
-    if (this._leftChild && this._rightChild) {
-      const childrenWidth =
-        this._leftChild.width + this._rightChild.width + SPACE_HORIZONTAL;
+    const parentLayout = this.parent.layOut();
+    const leftLayout = this.leftChild?.layOut();
+    const rightLayout = this.rightChild?.layOut();
+    const halfHorizontal = SPACE_HORIZONTAL / 2;
 
-      // Parent
-      this.setPosition(childrenWidth / 2 - this.width / 2, 0);
+    if (leftLayout) {
+      if (rightLayout) {
+        // Both left and right
+        console.log(`BOTH ${this.parent}`);
 
-      // Left child
-      this._leftChild.setPosition(0, SPACE_VERTICAL);
-      container.addChild(
-        makeLine(this.cx, this.cy, this._leftChild.cx, this._leftChild.cy)
-      );
+        const parentWidth = parentLayout.width;
+        const childrenWidth =
+          leftLayout.width + SPACE_HORIZONTAL + rightLayout.width;
+        const width = Math.max(parentWidth, childrenWidth);
+        console.log(parentWidth, childrenWidth, width);
 
-      // Right child
-      this._rightChild.setPosition(
-        this._leftChild.width + SPACE_HORIZONTAL,
+        const centerX = width / 2;
+        console.log("HALVES", centerX, halfHorizontal);
+
+        parentLayout.position.set(centerX - parentWidth / 2, 0);
+
+        leftLayout.position.set(
+          centerX - halfHorizontal - leftLayout.width,
+          SPACE_VERTICAL
+        );
+
+        rightLayout.position.set(centerX + halfHorizontal, SPACE_VERTICAL);
+      } else {
+        // Only left
+        console.log("ONLY LEFT");
+
+        parentLayout.position.set(
+          leftLayout.width + halfHorizontal - parentLayout.width / 2,
+          0
+        );
+
+        leftLayout.position.set(0, SPACE_VERTICAL);
+      }
+    } else if (rightLayout) {
+      // Only right
+      console.log("ONLY RIGHT");
+
+      parentLayout.position.set(0, 0);
+
+      rightLayout.position.set(
+        parentLayout.width / 2 + halfHorizontal,
         SPACE_VERTICAL
       );
-      container.addChild(
-        makeLine(this.cx, this.cy, this._rightChild.cx, this._rightChild.cy)
-      );
-
-      this._leftChild.addToContainer(container);
-      this.addToContainer(container);
-      this._rightChild.addToContainer(container);
+    } else {
+      // No children.
+      return parentLayout;
     }
+
+    const container = new Container();
+    console.log("BOUNDS 1", container.getLocalBounds());
+
+    if (leftLayout) {
+      console.log("LINE LEFT", leftLayout);
+      container.addChild(edge(parentLayout, leftLayout));
+      container.addChild(leftLayout);
+    }
+    console.log("BOUNDS AFTER LEFT", container.getLocalBounds());
+
+    if (rightLayout) {
+      console.log("LINE RIGHT");
+      container.addChild(edge(parentLayout, rightLayout));
+      container.addChild(rightLayout);
+    }
+    console.log("BOUNDS AFTER RIGHT", container.getLocalBounds());
+
+    container.addChild(parentLayout);
+    console.log("BOUNDS AFTER PARENT", container.getLocalBounds());
+
+    if (SHOW_BOUNDING_BOXES) {
+      const rect = makeRectangle(container.width, container.height);
+      rect.position.set(0, 0);
+      container.addChild(rect);
+    }
+    console.log("BOUNDS AFTER BOX", container.getLocalBounds());
 
     return container;
   }

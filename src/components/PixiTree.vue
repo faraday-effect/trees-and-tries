@@ -5,9 +5,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { Application } from "pixi.js";
-import { Node } from "@/graphics/Node";
 import { BinaryTreeNode } from "@/graphics/BinaryTreeNode";
 
+/*
 function sampleOne(app: Application) {
   const labels = ["alpha", "beta", "gamma", "delta", "Jeopardy!"];
   const nodes: Node[] = [];
@@ -27,12 +27,26 @@ function sampleOne(app: Application) {
     }
   });
 }
+ */
 
 function sampleTwo(app: Application) {
   const root = new BinaryTreeNode("parent");
-  root.leftChild = new BinaryTreeNode("left child");
-  root.rightChild = new BinaryTreeNode("right child");
-  app.stage.addChild(root.layOut());
+
+  const leftChild = new BinaryTreeNode(
+    "left child",
+    new BinaryTreeNode("left left child"),
+    new BinaryTreeNode("left right child", null, new BinaryTreeNode("leafie"))
+  );
+  const rightChild = new BinaryTreeNode(
+    "right child",
+    new BinaryTreeNode("right left child")
+  );
+  root.setLeftChild(leftChild);
+  // root.setRightChild(rightChild);
+
+  const rootLayout = root.layOut();
+  rootLayout.position.set(250, 100);
+  app.stage.addChild(rootLayout);
 }
 
 export default Vue.extend({
@@ -42,6 +56,7 @@ export default Vue.extend({
     const app = new Application({
       antialias: true,
       backgroundColor: 0xf0f0f0,
+      width: 1024
     });
     this.$el.appendChild(app.view); // Add the PIXI canvas to the DOM.a
 
