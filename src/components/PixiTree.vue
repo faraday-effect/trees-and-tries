@@ -35,17 +35,22 @@ function sampleTwo(app: Application) {
   const leftChild = new BinaryTreeNode(
     "left child",
     new BinaryTreeNode("left left child"),
-    new BinaryTreeNode("left right child", null, new BinaryTreeNode("leafie"))
+    new BinaryTreeNode(
+      "left right child",
+      //new BinaryTreeNode("turning over"),
+      null,
+      new BinaryTreeNode("a new leaf")
+    )
   );
   const rightChild = new BinaryTreeNode(
     "right child",
     new BinaryTreeNode("right left child")
   );
   root.setLeftChild(leftChild);
-  // root.setRightChild(rightChild);
+  root.setRightChild(rightChild);
 
   const rootLayout = root.layOut();
-  rootLayout.position.set(250, 100);
+  rootLayout.position.set(150, 50);
   app.stage.addChild(rootLayout);
 }
 
@@ -56,7 +61,7 @@ export default Vue.extend({
     const app = new Application({
       antialias: true,
       backgroundColor: 0xf0f0f0,
-      width: 1024
+      width: 1024,
     });
     this.$el.appendChild(app.view); // Add the PIXI canvas to the DOM.a
 

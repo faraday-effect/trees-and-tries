@@ -50,42 +50,42 @@ export class BinaryTreeNode {
     if (leftLayout) {
       if (rightLayout) {
         // Both left and right
-        console.log(`BOTH ${this.parent}`);
-
         const parentWidth = parentLayout.width;
         const childrenWidth =
           leftLayout.width + SPACE_HORIZONTAL + rightLayout.width;
-        const width = Math.max(parentWidth, childrenWidth);
-        console.log(parentWidth, childrenWidth, width);
 
-        const centerX = width / 2;
-        console.log("HALVES", centerX, halfHorizontal);
+        if (parentWidth >= childrenWidth) {
+          // Parent is at least as wide.
+          parentLayout.position.set(0, 0);
+          const margin = (parentWidth - childrenWidth) / 2;
+          leftLayout.position.set(margin, SPACE_VERTICAL);
+          rightLayout.position.set(
+            parentWidth - margin - rightLayout.width,
+            SPACE_VERTICAL
+          );
+        } else {
+          // Children are wider.
+          const childrenMidpoint = leftLayout.width + halfHorizontal;
 
-        parentLayout.position.set(centerX - parentWidth / 2, 0);
-
-        leftLayout.position.set(
-          centerX - halfHorizontal - leftLayout.width,
-          SPACE_VERTICAL
-        );
-
-        rightLayout.position.set(centerX + halfHorizontal, SPACE_VERTICAL);
+          const parentX = Math.max(childrenMidpoint - parentWidth / 2, 0);
+          parentLayout.position.set(parentX, 0);
+          leftLayout.position.set(0, SPACE_VERTICAL);
+          rightLayout.position.set(
+            childrenWidth - rightLayout.width,
+            SPACE_VERTICAL
+          );
+        }
       } else {
         // Only left
-        console.log("ONLY LEFT");
-
         parentLayout.position.set(
           leftLayout.width + halfHorizontal - parentLayout.width / 2,
           0
         );
-
         leftLayout.position.set(0, SPACE_VERTICAL);
       }
     } else if (rightLayout) {
       // Only right
-      console.log("ONLY RIGHT");
-
       parentLayout.position.set(0, 0);
-
       rightLayout.position.set(
         parentLayout.width / 2 + halfHorizontal,
         SPACE_VERTICAL
@@ -96,31 +96,23 @@ export class BinaryTreeNode {
     }
 
     const container = new Container();
-    console.log("BOUNDS 1", container.getLocalBounds());
 
     if (leftLayout) {
-      console.log("LINE LEFT", leftLayout);
       container.addChild(edge(parentLayout, leftLayout));
       container.addChild(leftLayout);
     }
-    console.log("BOUNDS AFTER LEFT", container.getLocalBounds());
 
     if (rightLayout) {
-      console.log("LINE RIGHT");
       container.addChild(edge(parentLayout, rightLayout));
       container.addChild(rightLayout);
     }
-    console.log("BOUNDS AFTER RIGHT", container.getLocalBounds());
 
     container.addChild(parentLayout);
-    console.log("BOUNDS AFTER PARENT", container.getLocalBounds());
 
     if (SHOW_BOUNDING_BOXES) {
       const rect = makeRectangle(container.width, container.height);
-      rect.position.set(0, 0);
       container.addChild(rect);
     }
-    console.log("BOUNDS AFTER BOX", container.getLocalBounds());
 
     return container;
   }

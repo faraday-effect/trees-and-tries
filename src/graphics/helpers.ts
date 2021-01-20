@@ -1,7 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 
-export const SPACE_HORIZONTAL = 45;
-export const SPACE_VERTICAL = 75;
+export const SPACE_HORIZONTAL = 35;
+export const SPACE_VERTICAL = 85;
 export const EMPTY_NODE_RADIUS = 10;
 
 export function makeLine(
@@ -17,26 +17,29 @@ export function makeLine(
   return line;
 }
 
-export function centerX(c: Container) {
+export function centerX(c: Container): number {
   return c.x + c.width / 2;
 }
 
-export function centerY(c: Container) {
+export function centerY(c: Container): number {
   return c.y + c.height / 2;
 }
 
-export function edge(fromLayout: Container, toLayout: Container): Graphics {
+export function edge(
+  parentLayout: Container,
+  childLayout: Container
+): Graphics {
   return makeLine(
-    centerX(fromLayout),
-    centerY(fromLayout),
-    centerX(toLayout),
-    toLayout.y
+    centerX(parentLayout),
+    parentLayout.height,
+    centerX(childLayout),
+    childLayout.y
   );
 }
 
 export function makeCircle(radius: number): Graphics {
   const circle = new Graphics();
-  circle.beginFill(0, 0.2);
+  circle.beginFill(0xa0a0a0);
   circle.drawCircle(0, 0, radius);
   circle.endFill();
   return circle;
